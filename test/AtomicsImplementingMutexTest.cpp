@@ -1,8 +1,10 @@
 #include "gtest/gtest.h"
+#include "Barrier.h"
 #include <iostream>
 #include <thread>
 #include <atomic>
 #include <numeric>
+#include <vector>
 
 using namespace testing;
 
@@ -12,20 +14,21 @@ namespace
     const int Nthreads = 10;
     int sharedCount;
     std::atomic<int> ID;
+    Barrier b(Nthreads);
 
     struct Worker
     {
         void operator()(int& individualCount)
         {
+        	b.Wait();
 		for(auto i = 0; i < N; ++i)
 		{			
 			while (ID != myID) {}
-	
+
 			++sharedCount;
 			++individualCount;		
 	
-			++ID;
-			ID = ID % Nthreads;
+			ID = (ID + 1) % Nthreads; // now it's someone else turn
 		}
         }
 	int myID;
@@ -63,4 +66,3 @@ TEST(AtomicsUnitTest, 5)
 
     	EXPECT_EQ(actualCount, sharedCount);
 }
-
