@@ -8,20 +8,47 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include <map>
+#include <vector>
 
 namespace
 {
 	class SmallAllocator
 	{
+			std::map<size_t, size_t> findFreeBlocks()
+			{
+				std::map<size_t, size_t> freeBlocks;
+				size_t begin = 0;
+				for (auto& block : occupiedMemory)
+				{
+					if (begin - block.first > 0)
+					{
+						freeBlocks.insert(std::make_pair(begin - block.first, begin));
+					}
+					begin = block.first + block.second;
+				}
+				return freeBlocks;
+			}
 	public:
 			static const int memorySize = 1048576;
 			void *Alloc(unsigned int Size)
 			{
-				size_t offsetToAlloc
-				for (auto& block : occupiedMemory)
+				if (Size > memorySize)
+					return nullptr;
+					//throw std::bad_alloc("not enough memory");
+
+				if (occupiedMemory.empty())
 				{
-					if (offset )
+					occupiedMemory.insert(std::make_pair(0, Size));
+					return Memory;
 				}
+
+				std::map<size_t, size_t> freeMemory = findFreeBlocks();
+
+				auto it = freeMemory.upper_bound(Size);
+				if (it == freeMemory.end())
+					return nullptr;
+
+				return Memory + it->second;
 			}
 
 			void *ReAlloc(void *Pointer, unsigned int Size)
@@ -31,7 +58,9 @@ namespace
 
 			void Free(void *Pointer)
 			{
-
+				auto it = occupiedMemory.find((char*)Pointer - Memory);
+				if (it != occupiedMemory.end())
+					occupiedMemory.erase(it);
 			}
 	private:
 			std::map<size_t, size_t> occupiedMemory;
