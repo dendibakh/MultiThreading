@@ -30,8 +30,7 @@ namespace
 			}
 
 	public:
-			//static const int memorySize = 1048576;
-			static const int memorySize = 1048;
+			static const int memorySize = 1048576;
 			void *Alloc(unsigned int Size)
 			{
 				if (Size > memorySize)
@@ -76,7 +75,7 @@ namespace
 				}
 
 				auto retPtr = Alloc(Size);
-				// move the memory;
+				memcpy(retPtr, Pointer, it->second);
 				Free(Pointer);
 				return retPtr;
 			}
