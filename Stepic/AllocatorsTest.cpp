@@ -18,23 +18,24 @@ namespace
 			{
 				std::map<size_t, size_t> freeBlocks;
 				size_t begin = 0;
-				for (auto& block : occupiedMemory)
+				for (auto block : occupiedMemory)
 				{
-					if (begin - block.first > 0)
-					{
-						freeBlocks.insert(std::make_pair(begin - block.first, begin));
-					}
+					if (block.first - begin > 0)
+						freeBlocks.insert(std::make_pair(block.first - begin, begin));
 					begin = block.first + block.second;
 				}
+				if (memorySize - begin > 0)
+						freeBlocks.insert(std::make_pair(memorySize - begin, begin));
 				return freeBlocks;
 			}
+
 	public:
-			static const int memorySize = 1048576;
+			//static const int memorySize = 1048576;
+			static const int memorySize = 1048;
 			void *Alloc(unsigned int Size)
 			{
 				if (Size > memorySize)
 					return nullptr;
-					//throw std::bad_alloc("not enough memory");
 
 				if (occupiedMemory.empty())
 				{
@@ -48,12 +49,36 @@ namespace
 				if (it == freeMemory.end())
 					return nullptr;
 
+				occupiedMemory.insert(std::make_pair(it->second, Size));
 				return Memory + it->second;
 			}
 
 			void *ReAlloc(void *Pointer, unsigned int Size)
 			{
+				auto it = occupiedMemory.find((char*)Pointer - Memory);
+				if (it == occupiedMemory.end())
+					return nullptr;
 
+				auto beginOfNextBlock = it;
+				++beginOfNextBlock;
+
+				size_t offsetNextBlock = 0;
+				if (beginOfNextBlock != occupiedMemory.end())
+					offsetNextBlock = beginOfNextBlock->first;
+				else
+					offsetNextBlock = memorySize;
+
+				if (it->first + Size < offsetNextBlock)
+				{
+					// no reallocation
+					it->second = Size;
+					return Memory + it->first;
+				}
+
+				auto retPtr = Alloc(Size);
+				// move the memory;
+				Free(Pointer);
+				return retPtr;
 			}
 
 			void Free(void *Pointer)
