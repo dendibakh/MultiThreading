@@ -13,6 +13,7 @@
 #include <iostream>
 #include <algorithm>
 #include <list>
+#include <arpa/inet.h>
 
 // This function is portable for setting socket in non-blocking mode
 #include <sys/ioctl.h>
@@ -29,6 +30,14 @@ int set_nonblock(int fd)
 		flags = 1;
 		return ioctl(fd, FIOBIO, &flags);
 	#endif
+}
+
+std::string socketIP(int socket)
+{
+    struct sockaddr_in SockAddr;
+    uint len = sizeof(struct sockaddr_in);
+    getsockname(socket, (struct sockaddr *)&SockAddr, &len);
+    return inet_ntoa(SockAddr.sin_addr);
 }
 
 void sendToEverybody(const std::string& msg, const std::set<int>& SlaveSockets)
@@ -93,11 +102,11 @@ int main()
 							shutdown(slaveSocket, SHUT_RDWR);
 							close(slaveSocket);
 							socketsToRemove.push_back(slaveSocket);
+							sendToEverybody("\"" + socketIP(slaveSocket) + "\" left the chat.\n", SlaveSockets);
 						}
 						else if (recvSize != 0)
 						{
-							sendToEverybody(std::string(buff, recvSize), SlaveSockets);
-							//send(slaveSocket, buff, 1024, MSG_NOSIGNAL);
+							sendToEverybody("\"" + socketIP(slaveSocket) + "\" wrote:\n" + std::string(buff, recvSize), SlaveSockets);
 						}
 					}
 				});
@@ -116,7 +125,7 @@ int main()
 
 			SlaveSockets.insert(slaveSocket);
 
-			sendToEverybody("New guy joined\n", SlaveSockets);
+			sendToEverybody("New participant joined the chat:\n\"" + socketIP(slaveSocket) + "\"\n", SlaveSockets);
 		}
 	}
 }
