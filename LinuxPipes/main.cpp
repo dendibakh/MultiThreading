@@ -6,6 +6,7 @@
  */
 
 #include <stdio.h>
+#include <cstdio>
 #include <unistd.h>
 #include <fcntl.h>
 #include <wait.h>
@@ -81,12 +82,29 @@ void executeCommand(const Command& cmd)
 	execvp(args[0], args.data());
 }
 
+std::string removeSpecialSymbols(const std::string& str)
+{
+	std::string retStr(str);
+	retStr.erase( std::remove(retStr.begin(), retStr.end(), '\r'), retStr.end() );
+	retStr.erase( std::remove(retStr.begin(), retStr.end(), '\n'), retStr.end() );
+	retStr.erase( std::remove(retStr.begin(), retStr.end(), '\t'), retStr.end() );
+	return retStr;
+}
+
 int main(int argc, char** argv)
 {
-	if (argc < 2)
-		return 0;
+	std::list<Command> cmdList;
 
-	std::list<Command> cmdList = parseInput(argv[1]);
+	if (argc > 1)
+	{
+		cmdList = parseInput(removeSpecialSymbols(argv[1]));
+	}
+	else
+	{
+		char buffer[128];
+		if (fgets(buffer, 128, stdin) != NULL)
+			cmdList = parseInput(removeSpecialSymbols(buffer));
+	}
 
 	for (std::list<Command>::iterator i = cmdList.begin(); i != cmdList.end(); ++i)
 	{
@@ -114,9 +132,9 @@ int main(int argc, char** argv)
 			}
 			else
 			{
-				int out = open("/home/box/result.out", O_RDWR|O_CREAT|O_TRUNC, 0600);
+				int out = open("/home/denis/result.out", O_RDWR|O_CREAT|O_TRUNC, 0600);
 				if (out == -1)
-					std::cout << "Was not able to open /home/box/result.out\n";
+					std::cout << "Was not able to open /home/denis/result.out\n";
 				close (STDOUT_FILENO);
 				dup2(out, STDOUT_FILENO);
 			}
