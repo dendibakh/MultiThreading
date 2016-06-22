@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <wait.h>
 
 #include <string>
 #include <list>
@@ -113,14 +114,15 @@ int main(int argc, char** argv)
 			}
 			else
 			{
-				int out = open("/home/box/result.out", O_RDWR|O_CREAT|O_APPEND, 0600);
+				int out = open("/home/box/result.out", O_RDWR|O_CREAT|O_TRUNC, 0600);
 				if (out == -1)
 					std::cout << "Was not able to open /home/box/result.out\n";
 				close (STDOUT_FILENO);
 				dup2(out, STDOUT_FILENO);
 			}
 			executeCommand(*i);
-			break;
+			int status = 0;
+			waitpid(childPid, &status, 0);
 		}
 		else
 		{
