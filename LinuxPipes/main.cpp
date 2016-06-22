@@ -7,6 +7,8 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <fcntl.h>
+
 #include <string>
 #include <list>
 #include <algorithm>
@@ -83,8 +85,6 @@ int main(int argc, char** argv)
 	if (argc < 2)
 		return 0;
 
-	//std::cout << argv[1] << '\n';
-
 	std::list<Command> cmdList = parseInput(argv[1]);
 
 	for (std::list<Command>::iterator i = cmdList.begin(); i != cmdList.end(); ++i)
@@ -94,11 +94,6 @@ int main(int argc, char** argv)
 			std::cout << i->args.begin()->c_str();
 		std::cout << '\n';
 	}
-
-//	std::list<std::string> args;
-//	args.push_back("aux");
-//	Command cmd = {"ps", args };
-//	executeCommand(cmd);
 
 	for (std::list<Command>::iterator i = cmdList.begin(); i != cmdList.end(); ++i)
 	{
@@ -115,6 +110,14 @@ int main(int argc, char** argv)
 				dup2(pfd[1], STDOUT_FILENO);
 				close (pfd[1]);
 				close (pfd[0]);
+			}
+			else
+			{
+				int out = open("/home/box/result.out", O_RDWR|O_CREAT|O_APPEND, 0600);
+				if (out == -1)
+					std::cout << "Was not able to open /home/box/result.out\n";
+				close (STDOUT_FILENO);
+				dup2(out, STDOUT_FILENO);
 			}
 			executeCommand(*i);
 			break;
