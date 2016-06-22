@@ -132,7 +132,7 @@ int main(int argc, char** argv)
 			}
 			else
 			{
-				int out = open("/home/denis/result.out", O_RDWR|O_CREAT|O_TRUNC, 0600);
+				int out = open("/home/denis/result.out", O_RDWR|O_CREAT|O_TRUNC, 0666);
 				if (out == -1)
 					std::cout << "Was not able to open /home/denis/result.out\n";
 				close (STDOUT_FILENO);
@@ -141,6 +141,7 @@ int main(int argc, char** argv)
 			executeCommand(*i);
 			int status = 0;
 			waitpid(childPid, &status, 0);
+			break;
 		}
 		else
 		{
