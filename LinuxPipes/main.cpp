@@ -123,13 +123,12 @@ int main(int argc, char** argv)
 		{
 			// child process
 			close (STDIN_FILENO);
-			dup2(pfd[1], STDIN_FILENO);
+			dup2(pfd[0], STDIN_FILENO);
 			close (pfd[1]);
 			close (pfd[0]);
 			// go to next command
 		}
 	}
-	pause();
 
 	return 0;
 }
