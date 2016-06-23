@@ -17,28 +17,31 @@ static const int BUFFER_SIZE = 1024;
 
 int main()
 {
-	std::string inputFifo("/home/denis/in.fifo");
+	std::string inputFifo("/home/bakhvalo/in.fifo");
 
+	remove(inputFifo.c_str());
 	if (mkfifo(inputFifo.c_str(), 0666))
 	{
 		std::cout << "inputFifo was not created.\n";
 		return 1;
 	}
-	int fdIn = open(inputFifo.c_str(), O_RDONLY);
+	int fdIn = open(inputFifo.c_str(), O_RDONLY | O_NONBLOCK);
 	if (fdIn <= 0)
 	{
 		std::cout << "inputFifo descriptor was not created.\n";
 		return 1;
 	}
 
-	std::string outputFifo("/home/denis/out.fifo");
+	std::string outputFifo("/home/bakhvalo/out.fifo");
 
-	if (mkfifo(outputFifo.c_str(), 0777))
+	remove(outputFifo.c_str());
+	if (mkfifo(outputFifo.c_str(), 0666))
 	{
 		std::cout << "outputFifo was not created.\n";
 		return 1;
 	}
-	int fdOut = open(outputFifo.c_str(), O_RDWR|O_CREAT|O_TRUNC);
+	int fdOut = open(outputFifo.c_str(), O_WRONLY);
+	if (fdOut <= 0)
 	{
 		std::cout << "outputFifo descriptor was not created.\n";
 		return 1;
@@ -49,13 +52,7 @@ int main()
 		char buf[BUFFER_SIZE];
 		memset(buf, '\0', BUFFER_SIZE);
 		int len = read(fdIn, buf, BUFFER_SIZE - 1);
-		if (len <= 0 )
-		{
-			close(fdIn);
-			close(fdOut);
-			return 0;
-		}
-		else
+		if (len > 0 )
 		{
 			write(fdOut, buf, BUFFER_SIZE - 1);
 		}

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+pipe=/home/bakhvalo/out.fifo
+
+while true
+do
+    if read line <$pipe; then
+        if [[ "$line" == 'quit' ]]; then
+            break
+        fi
+        echo $line
+    fi
+done
+
+echo "Reader exiting"
