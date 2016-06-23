@@ -54,7 +54,7 @@ int main()
 		int len = read(fdIn, buf, BUFFER_SIZE - 1);
 		if (len > 0 )
 		{
-			write(fdOut, buf, BUFFER_SIZE - 1);
+			write(fdOut, buf, len);
 		}
 	}
 	return 0;
