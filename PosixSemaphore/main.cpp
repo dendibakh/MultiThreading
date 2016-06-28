@@ -6,7 +6,7 @@
 
 int main()
 {
-	sem_t * sem = sem_open("/test.sem", IPC_CREAT|IPC_EXCL, 0777, 66);
+	sem_open("/test.sem", O_CREAT, 0777, 66);
 
 	pause();
 
