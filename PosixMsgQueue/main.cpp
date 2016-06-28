@@ -11,9 +11,19 @@
 
 int main()
 {
-	mqd_t msgQId = mq_open("/test.mq", O_CREAT|O_RDONLY);
+    struct mq_attr attr;
+    attr.mq_flags = 0;
+    attr.mq_maxmsg = 10;
+    attr.mq_msgsize = 80;
+    attr.mq_curmsgs = 0;
 
-	struct mq_attr attr;
+    mqd_t msgQId = mq_open( "/test.mq", O_CREAT | O_RDWR, 0777, &attr );
+	if (msgQId == -1)
+	{
+		std::cout << "Error while creating a message Queue.\n";
+		return 1;
+	}
+
 	mq_getattr(msgQId, &attr);
 
 	char* buffer = new char[attr.mq_msgsize];
