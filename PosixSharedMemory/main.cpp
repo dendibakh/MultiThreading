@@ -23,7 +23,7 @@ int main()
 
 	ftruncate(shmId, size + 1);
 
-	char* allocShMem = mmap(0, size + 1, PROT_WRITE|PROT_READ, MAP_SHARED, shmId, 0);
+	char* allocShMem = (char*)mmap(0, size + 1, PROT_WRITE|PROT_READ, MAP_SHARED, shmId, 0);
 	if (allocShMem == (void *) -1)
 	{
 		std::cout << "Shared memory was not attached.\n";
