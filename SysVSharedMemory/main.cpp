@@ -11,7 +11,10 @@ int main()
 {
 	key_t key = ftok("/tmp/mem.temp", 1);
 
-	int shmId = shmget(key, 1024*1024*1024, IPC_CREAT|IPC_EXCL|S_IRUSR|S_IWUSR|S_IROTH|S_IWOTH);
+	size_t size = (1024*1024*1024 / getpagesize() + 1) * getpagesize();
+	std::cout << "Shared memory size = " << size << ".\n";
+
+	int shmId = shmget(key, size, IPC_CREAT|IPC_EXCL|S_IRUSR|S_IWUSR|S_IROTH|S_IWOTH);
 	if (shmId == -1)
 	{
 		std::cout << "Shared memory was not created.\n";
@@ -28,7 +31,7 @@ int main()
 		return 1;
 	}
 
-	memset(allocShMem, 42, 1024*1024*1024);
+	memset(allocShMem, 42, size);
 
 	pause();
 
