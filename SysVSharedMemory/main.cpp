@@ -31,7 +31,13 @@ int main()
 		return 1;
 	}
 
-	memset(allocShMem, 42, size);
+	/* Determine the segment's size. */
+	struct shmid_ds shmbuffer;
+	shmctl (shmId, IPC_STAT, &shmbuffer);
+	std::cout << "segment size: " << shmbuffer.shm_segsz << ".\n";
+
+	// fill all bytes with 42
+	memset(allocShMem, 42, shmbuffer.shm_segsz);
 
 	pause();
 
