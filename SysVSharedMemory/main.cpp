@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
+#include <errno.h>
 
 int main()
 {
@@ -13,6 +14,7 @@ int main()
 	if (shmId == -1)
 	{
 		std::cout << "Shared memory was not created.\n";
+		std::cout << "errno = " << errno << ".\n";
 		return 1;
 	}
 
@@ -20,6 +22,8 @@ int main()
 	if (allocShMem == (void *) -1)
 	{
 		std::cout << "Shared memory was not attached.\n";
+		std::cout << "errno = " << errno << ".\n";
+		shmctl(shmId, IPC_RMID, NULL);
 		return 1;
 	}
 
