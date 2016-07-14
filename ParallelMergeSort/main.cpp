@@ -19,6 +19,7 @@ auto parseNumbers(const std::string& numbersStr)
 		it = std::find(it, numbersStr.end(), ' ');
 		if (it != numbersStr.end())
 		{
+			stream.str("");
 			stream.clear();
 			stream << std::string(beg, it);
 			stream >> val;
@@ -27,6 +28,7 @@ auto parseNumbers(const std::string& numbersStr)
 			beg = it;
 		}
 	}
+	stream.str("");
 	stream.clear();
 	stream << std::string(beg, it);
 	stream >> val;
@@ -42,6 +44,7 @@ auto outputNumbers(const std::vector<size_t>& numbers)
 	std::stringstream stream;
 	for (auto val : numbers)
 	{
+		stream.str("");
 		stream.clear();
 		stream << val;
 		numbersStr += stream.str();
@@ -52,26 +55,22 @@ auto outputNumbers(const std::vector<size_t>& numbers)
 
 int main()
 {
-    std::string pathInput = "/home/denis/dataset_12656_4_unsorted.txt";
-    std::string pathOutput = "/home/denis/dataset_12656_4.txt";
+    std::string pathInput = "/home/bakhvalo/dataset_12656_4_unsorted.txt";
+    std::string pathOutput = "/home/bakhvalo/dataset_12656_4.txt";
     std::ifstream input(pathInput, std::ifstream::binary);
 
     std::string inputStr((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
 
     auto numbers = parseNumbers(inputStr);
-    //std::cout << numbers.size() << "\n";
-    MergeSort(numbers);
-    //std::cout << numbers.size() << "\n";
-    //for (auto val : numbers)
-    //	std::cout << val << " ";
+    auto procNumbers = numbers;
 
-    auto outputStr = outputNumbers(numbers);
+    //multiple input data 10000 times
+    //for (int i = 0; i < 9999; ++i)
+    //	procNumbers.insert(procNumbers.end(), numbers.begin(), numbers.end());
 
-    auto numbers2 = parseNumbers(outputStr);
-    std::cout << numbers2.size() << "\n";
+    single::MergeSort(procNumbers);
+    auto outputStr = outputNumbers(procNumbers);
 
     std::ofstream output(pathOutput, std::ifstream::out | std::ifstream::binary);
     output << outputStr;
 }
-
-
